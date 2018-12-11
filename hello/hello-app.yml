@@ -10,8 +10,8 @@ metadata:
     app: hello
 spec:
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80
   selector:
     app: hello
 ---
@@ -34,11 +34,11 @@ spec:
         app: hello
     spec:
       containers:
-      - name: hello
-        image: nginxdemos/hello:plain-text
-        # imagePullPolicy: Always
-        ports:
-        - containerPort: 80
+        - name: hello
+          image: nginxdemos/hello:plain-text
+          # imagePullPolicy: Always
+          ports:
+            - containerPort: 80
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -48,9 +48,9 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: hello.155.210.158.159.xip.io
-    http:
-      paths:
-      - backend:
-          serviceName: hello-service
-          servicePort: 80
+    - host: hello.155.210.158.159.xip.io
+      http:
+        paths:
+          - backend:
+              serviceName: hello-service
+              servicePort: 80
