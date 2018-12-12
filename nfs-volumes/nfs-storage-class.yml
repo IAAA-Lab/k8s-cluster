@@ -85,13 +85,13 @@ spec:
             - name: PROVISIONER_NAME
               value: iaaa.es/nfs
             - name: NFS_SERVER
-              value: 10.43.14.146
+              value: 10.43.247.102
             - name: NFS_PATH
               value: /
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.43.14.146
+            server: 10.43.247.102
             path: /
 ---
 apiVersion: storage.k8s.io/v1
@@ -104,3 +104,12 @@ metadata:
 provisioner: iaaa.es/nfs # or choose another name, must match deployment's env PROVISIONER_NAME'
 parameters:
   archiveOnDelete: "false"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-archival
+  namespace: nfs-volumes
+provisioner: iaaa.es/nfs # or choose another name, must match deployment's env PROVISIONER_NAME'
+parameters:
+  archiveOnDelete: "true"

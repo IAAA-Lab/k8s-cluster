@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: bussybox-test
 spec:
-  # storageClassName: nfs-storage
+  # storageClassName: nfs-archival
   accessModes:
     - ReadWriteMany
   resources:
@@ -37,8 +37,5 @@ spec:
               mountPath: "/mnt"
       volumes:
         - name: nfs
-          # nfs:
-          #   server: nfs-server
-          #   path: /
           persistentVolumeClaim:
             claimName: bussybox-test
