@@ -20,13 +20,21 @@ kubectl apply -f nfs-server.yml
 Get the service ip
 
 ```
-kubectl describe service/nfs-server | grep IP:
+kubectl describe service/nfs-server --namespace nfs-volumes | grep IP:
 ```
 
 Edit the IP in `nfs-storage-class.yml`
 
 ```
 kubectl apply -f nfs-storage-class.yml
+```
+
+# Check results
+
+List Storage Classes that you have created
+
+```
+kubectl get storageclasses
 ```
 
 # Test
@@ -44,6 +52,14 @@ kubectl get all | grep nfs-busybox
 ```
 
 The pod should be running
+
+## Cleaning Test
+
+```
+kubectl delete -f nfs-test.yml
+```
+
+NOTE: Removing a `Persistent Volume Claim` may take a while
 
 # Test'
 
