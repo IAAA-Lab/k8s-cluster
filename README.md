@@ -5,6 +5,7 @@
 ### Installation
 
 Intall with:
+
 ```
 docker run -d --restart=unless-stopped \
   -p 8888:443 \
@@ -14,6 +15,7 @@ docker run -d --restart=unless-stopped \
 ```
 
 Check progress with:
+
 ```
 docker logs rancher-server -f
 ```
@@ -29,4 +31,16 @@ for dir in $cleanupdirs; do
   echo "Removing $dir"
   sudo rm -rf $dir
 done
+```
+
+### Add Helm support
+
+```
+kubectl -n kube-system create serviceaccount tiller
+
+kubectl create clusterrolebinding tiller \
+  --clusterrole cluster-admin \
+  --serviceaccount=kube-system:tiller
+
+helm init --service-account tiller
 ```
