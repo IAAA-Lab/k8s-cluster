@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 docker rm -f $(docker ps -qa)
 docker volume rm $(docker volume ls -q)
 cleanupdirs="/mnt/rancher /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico"
