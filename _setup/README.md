@@ -148,3 +148,9 @@ Check deploy with:
 ```sh
 kubectl get all,issuers,certs,challenges,orders  --namespace cattle-system
 ```
+
+## Racher config
+
+Once rancher is up and running, you will be able to access it in `$RANCHER_URI`.
+
+After setting the admin password and the service uri again, a banner will probably say that system is waiting for `service-uri`. To solve that, go to: `cluster: local > system > cattle-system > rancher`, click the options button and select `Redeploy`.
