@@ -5,9 +5,27 @@ sudo ros service enable kernel-headers
 sudo ros service up kernel-headers
 ```
 
+If you want to mount aditional disks (ej, `/dev/sdb` and `/dev/sdc` ), test the mount:
+
+```sh
+sudo mkfs.ext4 /dev/sdb
+sudo mount /dev/sdb1 /mnt/sdb
+ls /mnt/sdb
+```
+
+Add it to the cloud config or via `ros config`:
+
+```sh
+sudo ros config set mounts '[["/dev/sdb1","/mnt/nfs","ext4",""],["/dev/sdc1","/mnt/minio","ext4",""]]'
+```
+
 # In rancher
 
 Crate, if not, a `namespace` with called `nfs-volumes` and assign it to a the System Project.
+
+```sh
+kubectl create namespace nfs-volumes
+```
 
 The files have this namespace hardcoded for robustness reasons.
 
