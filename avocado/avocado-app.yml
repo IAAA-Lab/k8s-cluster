@@ -1,0 +1,83 @@
+# All files starts with: apiVersion, kind, and metadata fields.
+# Order : Service > Deployment/ReplicaSet
+# Labels: app: my-app, tier: front-end, phase: test, deployment: v3
+
+apiVersion: v1 # Las versiones parecen ser una locura
+kind: Service
+metadata:
+  name: avocado
+  labels:
+    app: avocado
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: avocado
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: avocado-page
+  labels:
+    app: avocado
+data:
+  index.html: |-
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>🥑 with ❤️</title>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Emoji_u1f951.svg/2000px-Emoji_u1f951.svg.png">
+      </head>
+      <body>
+        <div style="padding: 6em">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Emoji_u1f951.svg"
+            style="display:block; margin:auto; width: 30em;"
+          />
+        </div>
+      </body>
+    </html>
+---
+apiVersion: apps/v1beta2 # Las versiones parecen ser una locura
+kind: Deployment
+metadata:
+  name: avocado
+  labels:
+    app: avocado
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avocado
+  template:
+    metadata:
+      labels:
+        app: avocado
+    spec:
+      containers:
+        - name: avocado
+          image: nginx:1.8
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: index-page
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: index-page
+          configMap:
+            name: avocado-page
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: avocado
+spec:
+  rules:
+    - host: {}
+      http:
+        paths:
+          - backend:
+              serviceName: avocado
+              servicePort: 80
