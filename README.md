@@ -4,6 +4,10 @@ This repo describes the processes and decisions made in our own self hosted clus
 
 ## Index
 
-1. [Set up](_setup): The first steps into this project
-1. [NFS Volumes](nfs-volumes): Add distributed persistent volumes capabilities
-1. [Avocado](avocado): Simple Proof of Concept App
+1. [Set up](/setup): The first steps into this project
+   1. [Kubernetes (RKE)](/setup/rke): Config and deploy a ready to use cluster with `rke` tool.
+1. [Extensions](/extensions): Add capabilities to the cluster
+   1. [Rancher Server](/setup/rke):
+   1. [NFS Volumes](/extensions/nfs-volumes): Add distributed persistent volumes capabilities
+1. [Services](/setup/rke): Ready to deploy manifests of our most used services
+   1. [Avocado](/avocado): Simple Proof of Concept App

@@ -1,21 +1,9 @@
 nodes:
-  - address: <MACHINE_ADDRESS>
-    port: <SSH PORT>
-    internal_address: <CLUSTERS_INTERNAL_ADDRESS>
+  - address: $HOST1
+    port: $HOST1_SSH_PORT
+    internal_address: $HOST1_INTERNAL_IP
     role:
       - controlplane
-      - worker
-      - etcd
-    user: rancher
-    docker_socket: /var/run/docker.sock
-    ssh_key: ""
-    ssh_key_path: ~/.ssh/id_rsa
-    labels: {}
-
-  - address: <MACHINE_ADDRESS>
-    port: <SSH PORT>
-    internal_address: <CLUSTERS_INTERNAL_ADDRESS>
-    role:
       - worker
       - etcd
     hostname_override: ""
@@ -25,11 +13,26 @@ nodes:
     ssh_key_path: ~/.ssh/id_rsa
     labels: {}
 
-  - address: <MACHINE_ADDRESS>
-    port: <SSH PORT>
-    internal_address: <CLUSTERS_INTERNAL_ADDRESS>
+  - address: $HOST2
+    port: $HOST2_SSH_PORT
+    internal_address: $HOST2_INTERNAL_IP
     role:
-      - controlplane
+      # - controlplane
+      - worker
+      - etcd
+    hostname_override: ""
+    user: rancher
+    docker_socket: /var/run/docker.sock
+    ssh_key: ""
+    ssh_key_path: ~/.ssh/id_rsa
+    labels:
+      node-role.kubernetes.io/storage: "true"
+
+  - address: $HOST3
+    port: $HOST3_SSH_PORT
+    internal_address: $HOST3_INTERNAL_IP
+    role:
+      # - controlplane
       - worker
       - etcd
     hostname_override: ""
