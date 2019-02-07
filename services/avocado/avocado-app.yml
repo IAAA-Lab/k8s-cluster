@@ -75,7 +75,7 @@ metadata:
   name: avocado
 spec:
   rules:
-    - host: {}
+    - host: $HOST
       http:
         paths:
           - backend:
