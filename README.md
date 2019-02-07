@@ -11,5 +11,7 @@ This repo describes the processes and decisions made in our own self hosted clus
    1. [Rancher Server](/setup/rke):
    1. [Kubeless](/extensions/kubeless): Add serverless functions
    1. [NFS Volumes](/extensions/nfs-volumes): Add distributed persistent volumes capabilities
+1. [How To](/how-to): Ready to deploy manifests of our most used services
+   1. [TLS Services](/how-to/tls-services): Config a service's ingress to use HTTPS
 1. [Services](/setup/rke): Ready to deploy manifests of our most used services
    1. [Avocado](/avocado): Simple Proof of Concept App
