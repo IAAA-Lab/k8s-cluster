@@ -8,6 +8,7 @@ This repo describes the processes and decisions made in our own self hosted clus
    1. [Kubernetes (RKE)](/setup/rke): Config and deploy a ready to use cluster with `rke` tool.
 1. [Extensions](/extensions): Add capabilities to the cluster
    1. [Rancher Server](/setup/rke):
+   1. [Kubeless](/extensions/kubeless): Add serverless functions
    1. [NFS Volumes](/extensions/nfs-volumes): Add distributed persistent volumes capabilities
 1. [Services](/setup/rke): Ready to deploy manifests of our most used services
    1. [Avocado](/avocado): Simple Proof of Concept App
