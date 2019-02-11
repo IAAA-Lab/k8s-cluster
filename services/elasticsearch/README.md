@@ -19,6 +19,8 @@ Create a secret based on that file:
 kubectl create secret generic elastic-credentials --from-file auth -n elastic
 ```
 
+Once the secrets has been created. Apply the rest of the manifest
+
 ```sh
 kubectl apply -f elasticsearch.yaml -n elastic
 ```
