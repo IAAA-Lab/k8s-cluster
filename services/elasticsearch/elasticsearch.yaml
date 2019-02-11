@@ -1,0 +1,201 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: elastic
+  name: elasticsearch-discovery
+  labels:
+    app.kubernetes.io/name: elasticsearch
+spec:
+  # This declares a Headless Service
+  clusterIP: None
+  ports:
+    - name: http
+      port: 9200
+    - name: tcp-transport
+      port: 9300
+  selector:
+    app.kubernetes.io/name: elasticsearch
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: elastic
+  name: elasticsearch-config
+  labels:
+    app.kubernetes.io/name: elasticsearch
+data:
+  elasticsearch.yml: |
+    cluster.name: elastic
+
+    path.data: /usr/share/elasticsearch/data
+
+    network.host: 0.0.0.0
+
+    discovery.zen.minimum_master_nodes: 1
+    discovery.zen.ping.unicast.hosts: elasticsearch-discovery
+
+    xpack.security.enabled: false
+
+  log4j2.properties: |
+    status = error
+
+    appender.console.type = Console
+    appender.console.name = console
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%m%n
+
+    rootLogger.level = debug
+    rootLogger.appenderRef.console.ref = console
+  ES_JAVA_OPTS: -Xms512m -Xmx512m
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  namespace: elastic
+  name: elasticsearch
+  labels:
+    app.kubernetes.io/name: elasticsearch
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: elasticsearch
+  serviceName: elasticsearch-discovery
+  replicas: 3
+  updateStrategy:
+    # The procedure for updating the Elasticsearch cluster is described at
+    # https://www.elastic.co/guide/en/elasticsearch/reference/current/rolling-upgrades.html
+    # type: OnDelete
+    type: RollingUpdate
+  template:
+    metadata:
+      namespace: elastic
+      labels:
+        app.kubernetes.io/name: elasticsearch
+    spec:
+      terminationGracePeriodSeconds: 180
+      initContainers:
+        # This init container sets the appropriate limits for mmap counts on the hosting node.
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+        - name: set-max-map-count
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.5.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command:
+            - /bin/bash
+            - -c
+            - 'if [[ "$(sysctl vm.max_map_count --values)" -lt 262144 ]]; then sysctl -w vm.max_map_count=262144; fi'
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.5.0
+          imagePullPolicy: Always
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: DISCOVERY_SERVICE
+              value: elasticsearch-discovery
+            # - name: ELASTIC_USER
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: credentials
+            #       key: user
+            # - name: ELASTIC_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: credentials
+            #       key: password
+            - name: ES_JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: elasticsearch-config
+                  key: ES_JAVA_OPTS
+            - name: BACKUP_REPO_PATH
+              value: ""
+          ports:
+            - name: http
+              containerPort: 9200
+            - name: tcp-transport
+              containerPort: 9300
+          volumeMounts:
+            - name: configmap
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            - name: configmap
+              mountPath: /usr/share/elasticsearch/config/log4j2.properties
+              subPath: log4j2.properties
+            - name: elasticsearch-volume
+              mountPath: /usr/share/elasticsearch/data
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - /usr/bin/pgrep
+                - -x
+                - "java"
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              memory: "2Gi"
+      volumes:
+        - name: configmap
+          configMap:
+            name: elasticsearch-config
+  volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-volume
+        labels:
+          app.kubernetes.io/name: elasticsearch
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: nfs-archival
+        resources:
+          requests:
+            storage: 3Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: elastic
+  name: elasticsearch
+  labels:
+    app.kubernetes.io/name: elasticsearch
+spec:
+  # This declares a Load Balancer
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9200
+  selector:
+    app.kubernetes.io/name: elasticsearch
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    # name of the secret that contains the user/password definitions
+    nginx.ingress.kubernetes.io/auth-secret: elastic-credentials
+    # message to display with an appropiate context why the authentication is required
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
+    # issuer for auto-cert
+    certmanager.k8s.io/cluster-issuer: global-issuer
+  name: elasticsearch
+  namespace: elastic
+spec:
+  rules:
+    - host: {}
+      http:
+        paths:
+          - backend:
+              serviceName: elasticsearch
+              servicePort: 9200
+  tls:
+    - hosts:
+        - {}
+      secretName: elastic-tls
