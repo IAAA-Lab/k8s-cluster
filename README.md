@@ -16,3 +16,4 @@ This repo describes the processes and decisions made in our own self hosted clus
 1. [Services](/services): Ready to deploy manifests of our most used services
    1. [Avocado](/services/avocado): Simple Proof of Concept App
    1. [Elasticsearch](/services/elasticsearch): An scaling elasticsearch cluster
+   1. [Minio](/services/minio): An S3 open source clone
