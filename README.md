@@ -18,3 +18,4 @@ This repo describes the processes and decisions made in our own self hosted clus
    1. [Avocado](/services/avocado): Simple Proof of Concept App
    1. [Elasticsearch](/services/elasticsearch): An scaling elasticsearch cluster
    1. [Minio](/services/minio): An S3 open source clone
+   1. [Redis](/services/redis): A Key/Value store service
