@@ -10,7 +10,7 @@ This opinionated installation will:
 
 ## Rancher Replicas
 
-First, fetch sources
+First, fetch sources using the scripts in [how to deploy Helm Charts without Tiller](/how-to/deploy-helm-without-tiller) tutorial.
 
 ```sh
 ./fetch.sh https://releases.rancher.com/server-charts/stable rancher
