@@ -41,6 +41,19 @@ nodes:
     ssh_key: ""
     ssh_key_path: ~/.ssh/id_rsa
     labels: {}
+  - address: $HOST4
+    port: $HOST4_SSH_PORT
+    internal_address: $HOST4_INTERNAL_IP
+    role:
+      # - controlplane
+      - worker
+      - etcd
+    hostname_override: ""
+    user: rancher
+    docker_socket: /var/run/docker.sock
+    ssh_key: ""
+    ssh_key_path: ~/.ssh/id_rsa
+    labels: {}
 services:
   etcd:
     image: ""
