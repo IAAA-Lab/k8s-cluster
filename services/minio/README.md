@@ -2,6 +2,15 @@
 
 ## Deploy
 
+### Label the nodes
+
+Label the nodes where you want the minio replica to be deployed
+
+```sh
+kubectl label node $NODE_NAME node-role.kubernetes.io/s3=true
+# kubectl label node --all node-role.kubernetes.io/s3=true
+```
+
 ### Create Namespace
 
 ```sh

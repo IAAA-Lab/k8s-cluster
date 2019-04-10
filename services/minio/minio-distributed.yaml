@@ -1,34 +1,30 @@
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
   name: minio
   labels:
     app: minio
 spec:
-  clusterIP: None
-  ports:
-    - port: 9000
-      name: minio
   selector:
-    app: minio
----
-apiVersion: apps/v1beta1
-kind: StatefulSet
-metadata:
-  name: minio
-spec:
-  serviceName: minio
-  replicas: 4
-  updateStrategy: 
-    type: RollingUpdate
+    matchLabels:
+      app: minio
   template:
     metadata:
       labels:
         app: minio
     spec:
+      # We only deploy minio to the specified nodes. select your nodes by using `kubectl label node hostname1 -l minio-server=true`
+      nodeSelector:
+        node-role.kubernetes.io/s3: "true"
+      # This is to maximize network performance, the headless service can be used to connect to a random host.
+      hostNetwork: true
+      # We're just using a hostpath. This path must be the same on all servers, and should be the largest, fastest block device you can fit.
+      volumes:
+        - name: storage
+          hostPath:
+            path: /mnt/minio/
       containers:
         - name: minio
-          image: minio/minio:RELEASE.2019-02-06T21-16-36Z
           env:
             - name: MINIO_ACCESS_KEY
               valueFrom:
@@ -40,37 +36,19 @@ spec:
                 secretKeyRef:
                   name: credentials
                   key: secret_key
+          image: minio/minio:RELEASE.2019-04-09T01-22-30Z
+          # Unfortunately you must manually define each server. Perhaps autodiscovery via DNS can be implemented in the future.
           args:
             - server
-            - http://minio-{0...3}.minio.minio.svc.cluster.local/data
+            - http://192.168.1.10:9000/data
+            - http://192.168.1.11:9000/data
+            - http://192.168.1.12:9000/data
+            - http://192.168.1.13:9000/data
           ports:
             - containerPort: 9000
-          # These volume mounts are persistent. Each pod in the PetSet
-          # gets a volume mounted based on this field.
           volumeMounts:
-            - name: data
+            - name: storage
               mountPath: /data
-          # Liveness probe detects situations where Minio server instance
-          # is not working properly and needs restart. Kubernetes automatically
-          # restarts the pods if liveness checks fail.
-          livenessProbe:
-            httpGet:
-              path: /minio/health/live
-              port: 9000
-            initialDelaySeconds: 120
-            periodSeconds: 20
-  # These are converted to volume claims by the controller
-  # and mounted at the paths mentioned above.
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: nfs-archival
-        resources:
-          requests:
-            storage: 10Gi
 ---
 apiVersion: v1
 kind: Service
